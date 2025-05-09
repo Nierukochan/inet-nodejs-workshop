@@ -6,8 +6,8 @@ const { authorize } = require('../middleware/authVerify')
 router.post('/register', register)
 router.post('/login',login)
 
-router.get('/getAllUsers',getAllUsers)
+router.get('/users',getAllUsers)
 
-router.put('/users/:id/approve', authorize, approveUser)
+router.put('/users/:id/approve', approveUser)
 
 module.exports = router

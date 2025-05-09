@@ -1,37 +1,37 @@
 const productSchema = require('../schema/productSchema')
+const {sendResponse} = require('../utils/response')
 
 const createProduct = async(req, res) => {
   try {
-    const { name, qty, type, price} = req.body
+    // const items = req.body;
+    const items = JSON.parse(req.body.items)
+    const image = req.files?.map(file => file.filename) || []
 
-    if(!name || !qty || !type || !price) 
-      return res.status(400).json({
-        status: 400,
-        message: 'failed',
-        data: null
-      })
+    if(!Array.isArray(image) || image.length === 0)
+      return sendResponse(res, 400, 'failed missing image', null)
 
-    const product = await productSchema({
-      name: name,
-      qty: qty,
-      type: type,
-      price: price
-    })
+    if (!Array.isArray(items) || items.length === 0) 
+      return sendResponse(res, 400, 'failed missing items', null)
+  
+    const validItems = items.filter(item =>
+      item.name && item.qty && item.type && item.price
+    );
 
-    await product.save()
-    return res.status(200).json({
-      status: 200,
-      message: 'success',
-      data: product
-    })
+    if (validItems.length !== items.length) 
+      return sendResponse(res, 400, 'failed missing items', null)
+
+    const itemsWithImage = validItems.map((item, index) => ({
+      ...item,
+      image: image[index] || null
+    }));
+  
+    const savedProducts = await productSchema.insertMany(itemsWithImage);
+  
+    return sendResponse(res, 200, `success`, [savedProducts])
 
   } catch (error) {
     console.error(error)
-    return res.status(500).json({
-      status: 500,
-      message: 'unknown error',
-      data: null
-    })
+    return sendResponse(res, 500, 'unknown error', null)
   }
 }
 
@@ -41,25 +41,13 @@ const getAllProduct = async(req, res) => {
     const products = await productSchema.find({})
 
     if(!products) 
-      return res.status(404).json({
-        status: 404,
-        message: 'not found 404',
-        data: null
-      })
+      return sendResponse(res, 404, 'not founded', 404)
 
-      return res.status(200).json({
-        status: 200,
-        message: 'success',
-        data: [products]
-      })
+    return sendResponse(res, 200, `success`, [products])
 
   } catch (error) {
     console.error(error)
-    return res.status(500).json({
-      status: 500,
-      message: 'unknown error',
-      data: null
-    })
+    return sendResponse(res, 500, 'unknown error', null)
   }
 }
 
@@ -72,25 +60,13 @@ const getProduct = async(req,res) => {
     const product = await productSchema.findById(id)
 
     if(!product) 
-      return res.status(404).json({
-        status: 404,
-        message: 'not found 404',
-        data: null
-      })
+      return sendResponse(res, 404, 'not founded', 404)
 
-    return res.status(200).json({
-      status: 200,
-      message: 'success',
-      data: product
-    })
+    return sendResponse(res, 200, 'success', null)
 
   } catch (error) {
     console.error(error)
-    return res.status(500).json({
-      status: 500,
-      message: 'unknown error',
-      data: null
-    })
+    return sendResponse(res, 500, 'unknown error', null)
   }
 }
 
@@ -115,24 +91,12 @@ const editProduct = async(req, res) => {
     const product = await productSchema.findByIdAndUpdate(id, updateData,{ new: true })
 
     if(!product) 
-      return res.status(404).json({
-        status: 404,
-        message: 'not found 404',
-        data: null
-      })
+      return sendResponse(res, 404, 'not founded', 404)
 
-     return res.status(200).json({
-      status: 200,
-      message: 'success',
-      data: [product]
-     })
+    return sendResponse(res, 200, 'success', null)
   } catch (error) {
     console.error(error)
-    return res.status(500).json({
-      status: 500,
-      message: 'unknown error',
-      data: null
-    })
+    return sendResponse(res, 500, 'unknown error', null)
   }
 }
 
@@ -140,27 +104,15 @@ const deleteProduct = async(req, res) => {
   try {
     const {id} = req.params
 
-    const product = await productSchema.findByIdAndDelete(id)
+    const products = await productSchema.findByIdAndDelete(id)
 
     if(!product)
-      return res.status(404).json({
-        status: 404,
-        message: 'not found 404',
-        data: null
-      })
+      return sendResponse(res, 404, 'not founded', 404)
 
-    return res.status(200).json({
-      status: 200,
-      message: 'success',
-      data: product
-    })
+    return sendResponse(res, 200, 'success', products)
   } catch (error) {
     console.error(error)
-    return res.status(500).json({
-      status: 500,
-      message: 'unknown error',
-      data: null
-    })
+    return sendResponse(res, 500, 'unknown error', null)
   }
 }
 

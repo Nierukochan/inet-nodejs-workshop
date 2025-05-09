@@ -1,6 +1,7 @@
 const userSchema = require('../schema/userSchema')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const {sendResponse} = require('../utils/response')
 
 const register = async(req,res) => {
   try {
@@ -11,33 +12,19 @@ const register = async(req,res) => {
     const finduser = await userSchema.findOne({username})
 
     if(finduser) 
-      return res.status(409).json({
-        status: 409,
-        message: 'username already exists',
-        data: []
-      }) 
+      return sendResponse(res, 409, 'username already exists', null)
 
     const users = await userSchema({
       username: username,
       password: hashedpassword,
-      approved: 0
     })
 
     await users.save()
-    res.status(200).json({
-      status:200,
-      message:'success',
-      data: users
-    })
+    return sendResponse(res, 200, 'success', null)
 
   } catch (error) {
     console.log(error);
-    
-    res.status(500).json({
-      status:500,
-      message:'unknown error',
-      data: null
-    })
+    return sendResponse(res, 500, 'unknown error', null)
   }
 }
 
@@ -46,20 +33,12 @@ const login = async(req,res) => {
     const {username, password} = req.body
 
     if(!username || !password) 
-      return res.status(200).json({
-      status:400,
-      message:'failed',
-      data: []
-    })
+      return sendResponse(res, 400, 'failed', null)
 
     const user = await userSchema.findOne({username})
 
     if(!user) 
-      return res.status(404).json({
-        status: 404,
-        message: 'not found 404',
-        data: []
-      }) 
+      return sendResponse(res, 404, 'not founded', null)
 
     const comparedPassword = await bcrypt.compare(password, user.password)
     if(!comparedPassword) 
@@ -88,11 +67,7 @@ const login = async(req,res) => {
 
   } catch (error) {
     console.error(error)
-    return res.status(500).json({
-      status: 500,
-      message: 'unknown error',
-      data: null
-    })
+    return sendResponse(res, 500, 'unknown error', null)
   }
 }
 
@@ -102,11 +77,7 @@ const getAllUsers = async(req, res) => {
     const products = await userSchema.find({}).select('-password')
 
     if(!products) 
-      return res.status(404).json({
-        status: 404,
-        message: 'not found 404',
-        data: null
-      })
+      return sendResponse(res, 404, 'not founded', null)
 
       // const { password: hashedPassword, ...userWithoutPassword } = products
 
@@ -118,29 +89,20 @@ const getAllUsers = async(req, res) => {
       
   } catch (error) {
     console.error(error)
-    return res.status(500).json({
-      status: 500,
-      message: 'unknown error',
-      data: null
-    })
+    return sendResponse(res, 500, 'unknown error', null)
   }
 }
 
 const approveUser = async(req, res) => {
   try {
     const {id} = req.params
-    const approved = 1
 
     const users = await userSchema.findByIdAndUpdate(id,{
-      approved: approved
+      approved: true
     })
 
     if(!users) 
-      return res.status(404).json({
-        status: 404,
-        message: 'not found 404',
-        data: null
-      })
+      return sendResponse(res, 404, 'not founded', null)
 
     return res.status(200).json({
       status: 200,
@@ -150,11 +112,7 @@ const approveUser = async(req, res) => {
 
   } catch (error) {
     console.error(error)
-    return res.status(500).json({
-      status: 500,
-      message: 'unknown error',
-      data: null
-    })
+    return sendResponse(res, 500, 'unknown error', null)
   }
 }
 
