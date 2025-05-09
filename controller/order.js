@@ -1,7 +1,27 @@
 const orderSchema = require('../schema/orderSchema')
 const productSchema = require('../schema/productSchema')
 const {sendResponse} = require('../utils/response')
-const jwt = require('jsonwebtoken')
+
+// const createMultipleOrder = async (req, res) => {
+//   try {
+    
+//     const items = req.body
+
+//     if(!Array.isArray(items) || items.length === 0) 
+//       return sendResponse(res, 400, 'failed items are null', null)
+
+//     const orders = [];
+//     const updatedProducts = []
+    
+//     const validItems = items.filter(item => {
+//       item.id && item.qty
+//     })
+
+//   } catch (error) {
+//     console.error(error)
+//     return sendResponse(res, 500, {msg: 'unknown error', error: error}, null)
+//   }
+// }
 
 const createOrder = async (req, res) => {
   try {
@@ -11,7 +31,7 @@ const createOrder = async (req, res) => {
     const user = req.user
     const userId = user._id;
     
-    const items = req.body;
+    // const items = req.body;
       
     // if (!Array.isArray(items) || items.length === 0) {
     //   return res.status(400).json({
@@ -59,7 +79,9 @@ const createOrder = async (req, res) => {
       qty: findProduct.qty - qty
     })
 
-    return sendResponse(res, 200, 'success', null)
+    const product = await productSchema.findById(id)
+
+    return sendResponse(res, 200, 'success', {order: order, product: product})
 
   } catch (error) {
     console.error(error)
@@ -72,7 +94,7 @@ const getAllOrders = async(req, res) => {
     
     const orders = await orderSchema.find({})
 
-    return sendResponse(res, 200, 'order has been cancelled', {order})
+    return sendResponse(res, 200, 'success', {order: orders})
 
   } catch (error) {
     console.error(error)
@@ -84,12 +106,15 @@ const getOrdersByProduct = async(req, res) => {
   try {
     
     const {id} = req.params
-    const orders = await orderSchema.find({ product_id: id})
+    const product = await productSchema.findById(id)
+    if(!product)
+      return sendResponse(res, 404, {msg:'product not founded',product_id: id} , null)
 
+    const orders = await orderSchema.find({ product_id: id})
     if(!orders) 
       return sendResponse(res, 404, 'not founded', 404)
 
-    return sendResponse(res, 200, 'order has been cancelled', {orders})
+    return sendResponse(res, 200, 'success', {order: orders})
   } catch (error) {
     console.error(error)
     return sendResponse(res, 500, 'unknown error', null)
@@ -112,12 +137,24 @@ const cancelOrder = async(req, res) => {
       qty: productQty.qty + order.qty 
     })
 
-    return sendResponse(res, 200, 'order has been cancelled', {order})
+    return sendResponse(res, 200, 'order has been cancelled', {order: order, updatedProduct: product})
 
   } catch (error) {
     console.error(error)
     return sendResponse(res, 500, 'unknown error', null)
   }
 }
+
+// const updateProduct = async(req, res) => {
+//   try {
+//     var {id} = req.params
+
+//     const order = await orderSchema.findByIdAndUpdate(id,{
+
+//     })
+//   } catch (error) {
+    
+//   }
+// }
 
 module.exports = { createOrder, getAllOrders, getOrdersByProduct, cancelOrder }

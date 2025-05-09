@@ -2,9 +2,9 @@ const mongoose = require('mongoose')
 const {Schema} = mongoose
 
 const orderSchema = new Schema({
-  user_id: {type: String},
-  product_id: {type: String},
-  qty: {type: Number},
+  user_id: {type: String, require: true},
+  product_id: {type: String, require: true},
+  qty: {type: Number, require: true},
   total: {type: Number},
   status:
    {type: String,

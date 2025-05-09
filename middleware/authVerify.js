@@ -18,17 +18,17 @@ const authorize = async(req, res, next) => {
     // console.log(`founded ${userId}`)
 
     if(!user) 
-      return sendResponse(res, 404, `not founded user`, null)
-
+      return sendResponse(res, 404, `user not founded`, null)
+    //http://localhost:3000/api/v1/users/681cc3f9d96fa51172987509/approve
     if(!user.approved) 
-      return sendResponse(res, 401, `Didn't approved fire`, null)
+      return sendResponse(res, 401, {msg:`didn't approved`, url:`http://localhost:3000/api/v1/users/${userId}/approve` }, null)
 
       req.user = user
       next()
     
   } catch (error) {
     console.error(error)
-    return sendResponse(res, 500, `unknown error`, null)
+    return sendResponse(res, 500,{msg: 'unknown error', error: error}, null)
   }
 }
 
@@ -37,33 +37,25 @@ const adminAuthorize = async(req, res, next) => {
   try {
     
     const token = req.cookies['userToken']
-    if(!token) return res.status(401).json({
-      status: 401,
-      message: 'unauthorized (no token)',
-      data: null
-    })
+    if(!token) 
+      return sendResponse(res, 401, `unauthorize (token invalid)`, null)
 
     const decoded = await jwt.verify(token, process.env.SECRET_KEY);
 
     const user = await userSchema.findById(decoded.userId)
-    if(!user) return res.status(404).json({
-      status: 404,
-      message: 'not founded 404',
-      data: null
-    })
+    if(!user) 
+      return sendResponse(res, 404, `user not founded`, null)
 
-    if(!user.isAdmin) return res.status(401).json({
-      status: 401,
-      message: 'unauthorized (not admin)',
-      data: null
-    })
+    if(!user.isAdmin) 
+      return sendResponse(res, 401, `unauthorize (not admin)`, null)
 
     req.user = user
     next()
 
   } catch (error) {
-    
+    console.error(error)
+    return sendResponse(res, 500, {msg: 'unknown error', error: error}, null)
   }
 }
 
-module.exports = { authorize }
+module.exports = { authorize, adminAuthorize }

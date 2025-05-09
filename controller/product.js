@@ -3,7 +3,6 @@ const {sendResponse} = require('../utils/response')
 
 const createProduct = async(req, res) => {
   try {
-    // const items = req.body;
     const items = JSON.parse(req.body.items)
     const image = req.files?.map(file => file.filename) || []
 
@@ -27,7 +26,7 @@ const createProduct = async(req, res) => {
   
     const savedProducts = await productSchema.insertMany(itemsWithImage);
   
-    return sendResponse(res, 200, `success`, [savedProducts])
+    return sendResponse(res, 200, `success`, {newProducts: savedProducts})
 
   } catch (error) {
     console.error(error)
@@ -43,7 +42,7 @@ const getAllProduct = async(req, res) => {
     if(!products) 
       return sendResponse(res, 404, 'not founded', 404)
 
-    return sendResponse(res, 200, `success`, [products])
+    return sendResponse(res, 200, `success`, {product: products})
 
   } catch (error) {
     console.error(error)
@@ -55,14 +54,14 @@ const getProduct = async(req,res) => {
   try {
 
     const {id} = req.params
+    if(!id)
+      return sendResponse(res, 400, 'failed missing product_id', null)
 
-    // const product = await productSchema.findOne({product_id})
     const product = await productSchema.findById(id)
-
     if(!product) 
-      return sendResponse(res, 404, 'not founded', 404)
+      return sendResponse(res, 404, 'not founded', null)
 
-    return sendResponse(res, 200, 'success', null)
+    return sendResponse(res, 200, 'success', {product: product})
 
   } catch (error) {
     console.error(error)
@@ -76,11 +75,7 @@ const editProduct = async(req, res) => {
     const { name, qty, type, price} = req.body
 
     if(!id) 
-      return res.status(400).json({
-        status: 400,
-        message: 'failed',
-        data: null
-      })
+      return sendResponse(res, 400, 'failed missing id', null)
 
     const updateData = {};
     if (name !== undefined) updateData.name = name;
@@ -91,9 +86,9 @@ const editProduct = async(req, res) => {
     const product = await productSchema.findByIdAndUpdate(id, updateData,{ new: true })
 
     if(!product) 
-      return sendResponse(res, 404, 'not founded', 404)
+      return sendResponse(res, 404, 'product not founded', null)
 
-    return sendResponse(res, 200, 'success', null)
+    return sendResponse(res, 200, 'success', {editedProduct: product})
   } catch (error) {
     console.error(error)
     return sendResponse(res, 500, 'unknown error', null)
@@ -109,7 +104,7 @@ const deleteProduct = async(req, res) => {
     if(!product)
       return sendResponse(res, 404, 'not founded', 404)
 
-    return sendResponse(res, 200, 'success', products)
+    return sendResponse(res, 200, 'success', {product: products})
   } catch (error) {
     console.error(error)
     return sendResponse(res, 500, 'unknown error', null)
