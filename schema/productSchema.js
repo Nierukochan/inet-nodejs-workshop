@@ -2,10 +2,15 @@ const mongoose = require('mongoose')
 const {Schema} = mongoose
 
 const productSchema = new Schema({
-  image: {type: String, require: true},
+  image: {type: String},
   name: {type: String, require: true},
   qty: {type: Number, require: true},
-  type: {type: String, require: true},
+  type: 
+    {type: String, 
+        require: true,
+        enum: ['animal','unnormal','Food','Drink'],
+        default: 'Food'
+    },
   // description: {type: String},
   price: {type: Number, require: true}
 })

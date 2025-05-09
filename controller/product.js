@@ -6,8 +6,8 @@ const createProduct = async(req, res) => {
     const items = JSON.parse(req.body.items)
     const image = req.files?.map(file => file.filename) || []
 
-    if(!Array.isArray(image) || image.length === 0)
-      return sendResponse(res, 400, 'failed missing image', null)
+    // if(!Array.isArray(image) || image.length === 0)
+    //   return sendResponse(res, 400, 'failed missing image', null)
 
     if (!Array.isArray(items) || items.length === 0) 
       return sendResponse(res, 400, 'failed missing items', null)
@@ -25,7 +25,7 @@ const createProduct = async(req, res) => {
     }));
   
     const savedProducts = await productSchema.insertMany(itemsWithImage);
-  
+    
     return sendResponse(res, 200, `success`, {newProducts: savedProducts})
 
   } catch (error) {
@@ -101,7 +101,7 @@ const deleteProduct = async(req, res) => {
 
     const products = await productSchema.findByIdAndDelete(id)
 
-    if(!product)
+    if(!products)
       return sendResponse(res, 404, 'not founded', 404)
 
     return sendResponse(res, 200, 'success', {product: products})

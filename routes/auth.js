@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const { register, login, getAllUsers, approveUser, userIsAdmin } = require('../controller/auth')
-const { authorize } = require('../middleware/authVerify')
+const { authorize, adminAuthorize } = require('../middleware/authVerify')
+const upload = require('../middleware/fileUpload')
 
 router.post('/register', register)
 router.post('/login',login)

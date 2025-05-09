@@ -30,30 +30,6 @@ const createOrder = async (req, res) => {
     const { qty } = req.body
     const user = req.user
     const userId = user._id;
-    
-    // const items = req.body;
-      
-    // if (!Array.isArray(items) || items.length === 0) {
-    //   return res.status(400).json({
-    //     status: 400,
-    //     message: 'failed (missing items)',
-    //     data: null
-    //   });
-    // }
-  
-    // const validItems = items.filter(item =>
-    //   item.id && item.userId && item.qty && item.price
-    // );
-  
-    // if (validItems.length !== items.length) {
-    //   return res.status(400).json({
-    //     status: 400,
-    //     message: 'failed (missing field)',
-    //     data: null
-    //   });
-    // }
-  
-    // const savedProducts = await orderSchema.insertMany(validItems)
 
     const findProduct = await productSchema.findById(id)
     if (!findProduct)
@@ -93,6 +69,8 @@ const getAllOrders = async(req, res) => {
   try { 
     
     const orders = await orderSchema.find({})
+
+    // const product = await proderSchema.findById(orders._id)
 
     return sendResponse(res, 200, 'success', {order: orders})
 

@@ -2,12 +2,16 @@ const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const app = express()
+const path = require('path')
 require('dotenv').config()
 require('./db')
 
+app.use('/public', express.static(path.join(__dirname, 'public')))
 app.use(cookieParser())
 app.use(express.json())
-app.use(cors())
+app.use(cors(
+  'http://localhost:3001'
+))
 
 const authRoutes = require('./routes/auth');
 const prodRoutes = require('./routes/product')

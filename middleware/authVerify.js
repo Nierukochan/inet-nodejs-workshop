@@ -5,7 +5,7 @@ const {sendResponse} = require('../utils/response')
 const authorize = async(req, res, next) => {
   try {
     
-    const token = req.cookies['userToken']
+    const token = req.headers['authorization']?.split(' ')[1]
 
     if (!token)
       return sendResponse(res, 401, `unauthorize`, null)
@@ -31,7 +31,6 @@ const authorize = async(req, res, next) => {
     return sendResponse(res, 500,{msg: 'unknown error', error: error}, null)
   }
 }
-
 
 const adminAuthorize = async(req, res, next) => {
   try {
