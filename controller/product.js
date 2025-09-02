@@ -10,14 +10,14 @@ const createProduct = async(req, res) => {
     //   return sendResponse(res, 400, 'failed missing image', null)
 
     if (!Array.isArray(items) || items.length === 0) 
-      return sendResponse(res, 400, 'failed missing items', null)
+      return sendResponse(res, 400, 'failed missing items ', null)
   
     const validItems = items.filter(item =>
       item.name && item.qty && item.type && item.price
     );
 
     if (validItems.length !== items.length) 
-      return sendResponse(res, 400, 'failed missing items', null)
+      return sendResponse(res, 400, 'failed valid items', null)
 
     const itemsWithImage = validItems.map((item, index) => ({
       ...item,
@@ -82,6 +82,10 @@ const editProduct = async(req, res) => {
     if (qty !== undefined && qty !== null) updateData.qty = qty;
     if (type !== undefined && type !== null) updateData.type = type;
     if (price !== undefined && price !== null) updateData.price = price;
+
+    if (req.file) {
+      updateData.image = req.file.filename
+    }
 
     const product = await productSchema.findByIdAndUpdate(id, updateData,{ new: true })
 

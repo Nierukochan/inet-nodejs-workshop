@@ -8,7 +8,7 @@ const productSchema = new Schema({
   type: 
     {type: String, 
         require: true,
-        enum: ['animal','unnormal','Food','Drink'],
+        enum: ['animal','unnormal','Food','Drink','Electronic'],
         default: 'Food'
     },
   // description: {type: String},

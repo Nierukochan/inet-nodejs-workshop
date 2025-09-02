@@ -4,12 +4,25 @@ const {createProduct, getAllProduct, getProduct, editProduct, deleteProduct} = r
 const { authorize } = require('../middleware/authVerify')
 const upload = require('../middleware/fileUpload')
 
-router.post('/products', authorize, upload.array('image'), createProduct)
+const multer = require('multer');
 
-router.get('/products', authorize, getAllProduct)
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './public/images'); // Change this path if needed
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}_${file.originalname}`);
+  }
+});
+
+const uploadSingle = multer({ storage })
+
+router.post('/products',authorize, upload.array('image'), createProduct)
+
+router.get('/products',authorize, getAllProduct)
 router.get('/products/:id', authorize, getProduct)
 
-router.put('/products/:id', authorize, editProduct)
+router.put('/products/:id', authorize, upload.single('image'), editProduct)
 
 router.delete('/products/:id', authorize, deleteProduct)
 
